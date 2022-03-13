@@ -28,17 +28,19 @@ def poller_task(app,calendar_id,room_name):
         
             if roomstatus_gcal != roomstatus_iot:
                 #need to update roomstatus in iot
-                #iotclient.update_room_status(roomstatus_gcal,roomstatus_iot)
-                roomstatus_iot=iotclient.get_room_status(room_name)
+                iotclient.update_room_status(roomstatus_gcal,roomstatus_iot)
+                #roomstatus_iot=iotclient.get_room_status(room_name)
 
             print("Going to sleep...")
-            sleep(5)
+            sleep(500000)
 
 
 
 
 
 def set_nextev_dates(startd,endd,tomorrow,result):
+    #utility to set next events dates in right format
+    #if it's within the day use only H:M otherwise put day in front
     if (startd<tomorrow):
         result.nextevstart = datetime.strftime(startd,"%H:%M")
         result.nextevend = datetime.strftime(endd,"%H:%M")

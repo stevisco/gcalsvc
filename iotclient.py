@@ -93,21 +93,21 @@ def get_room_status(room_name):
     return room
 
 
-def update_room_status(toupdate,current):
+def update_room_status(newstatus,current):
     
     token = get_token()
     client = init_client(token)
-    things_api = iot.ThingsV2Api(client)
     properties_api = iot.PropertiesV2Api(client)
     
     #TODO: retrieve tid, pid, devid based on input params
-    tid = current.metadata["thingid"]
-    pid = "aaa"
-    devid = "aaa"
+    tid = current.metadata.get("thingid","")
 
     result={}
     try:
-        result = properties_api.properties_v2_publish(tid,pid,{"value":value,"device_id":devid})
+        pid = current.metadata.get(PNAME_CUREVMSG,"")
+        value = newstatus.curevmsg
+        print("UPDATE: "+tid+"/"+pid+"/"+PNAME_CUREVMSG+"="+value)
+        #result = properties_api.properties_v2_publish(tid,pid,{"value":value,"device_id":devid})
         print(result)
 
     except ApiException as e:

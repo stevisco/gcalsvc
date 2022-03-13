@@ -15,7 +15,7 @@ def index():
 
 if __name__ == '__main__':
     calendar_id='arduino.cc_3931313135363730363336@resource.calendar.google.com'
-    room_name="ESP32"
+    room_name="blue_room"
 
     #calendar_id='c_18826hct7bgeqjrmmgrshqk2vbmi2@resource.calendar.google.com'
     
