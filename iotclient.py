@@ -9,6 +9,15 @@ from arduino_iot_rest.configuration import Configuration
 from RoomStatus import RoomStatus
 
 PNAME_CUREVMSG = "curevmsg"
+PNAME_BUSYNOW = "busynow"
+PNAME_CUREVSTART="curevstart"
+PNAME_CUREVEND="curevend"
+PNAME_CUREVTM="curevtm"
+PNAME_NEXTEVMSG="nextevmsg"
+PNAME_NEXTEV_START="nextevstart"
+PNAME_NEXTEVTM="nextevtm"
+PNAME_NEXTEV_END="nextevend"
+        
 
 def get_token():
     oauth_client = BackendApplicationClient(client_id="SOeu9scvEKBMrRjG8olnDAwegufvTiCp")
@@ -43,11 +52,13 @@ def get_room_status(thing_name):
     room=RoomStatus()
 
     properties=[]
+    md={}    
     try:
         
         things = things_api.things_v2_list()
         for thing in things:
             if thing.name == thing_name:
+                md["thingid"]=thing.id
                 properties=properties_api.properties_v2_list(thing.id)
 
     except ApiException as e:
@@ -55,17 +66,33 @@ def get_room_status(thing_name):
 
     #creates cache of property ids
     #in addition to copying variables in room object
-    md={}
     for property in properties:
         md[property.name]=property.id
         if property.name==PNAME_CUREVMSG:
             room.curevmsg=property.value
+        if property.name==PNAME_BUSYNOW:
+            room.busynow=property.value
+        if property.name==PNAME_CUREVSTART:
+            room.curevstart=property.value
+        if property.name==PNAME_CUREVEND:
+            room.curevend=property.value
+        if property.name==PNAME_CUREVTM:
+            room.curevtm=property.value
+        if property.name==PNAME_NEXTEVMSG:
+            room.nextevmsg=property.value
+        if property.name==PNAME_NEXTEV_START:
+            room.nextevstart=property.value
+        if property.name==PNAME_NEXTEVTM:
+            room.nextevtm=property.value
+        if property.name==PNAME_NEXTEV_END:
+            room.nextevend=property.value
+
     room.metadata=md
 
     return room
 
 
-def set_property(thing_name,property_name,value):
+def update_room_status(toupdate,current):
     
     token = get_token()
     client = init_client(token)

@@ -13,6 +13,7 @@ class RoomStatus:
         self.nextevmsg = ""
         self.nextevstart=""
         self.nextevtm = ""
+        self.nextevend=""
         self.metadata={}
     
  
@@ -23,6 +24,14 @@ class RoomStatus:
 
     def __eq__(self, other):
         if isinstance(other, self.__class__):
-            return self.__dict__ == other.__dict__
+            return self.busynow==other.busynow \
+                and self.curevmsg==other.curevmsg \
+                and self.curevstart==other.curevstart \
+                and self.curevend==other.curevend \
+                and self.curevtm==other.curevtm \
+                and self.nextevtm==other.nextevtm \
+                and self.nextevstart==other.nextevstart \
+                and self.nextevend==other.nextevend \
+                and self.nextevmsg==other.nextevmsg
         else:
             return False
