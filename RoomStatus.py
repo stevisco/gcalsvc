@@ -13,6 +13,7 @@ class RoomStatus:
         self.nextevmsg = ""
         self.nextevstart=""
         self.nextevtm = ""
+        self.metadata={}
     
  
 

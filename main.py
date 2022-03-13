@@ -1,6 +1,7 @@
 import os
 from threading import Thread
 from flask import Flask, jsonify
+from iotclient import get_room_status
 from poller import poller_task
 
 
@@ -15,7 +16,6 @@ def index():
 if __name__ == '__main__':
     calendarId='arduino.cc_3931313135363730363336@resource.calendar.google.com'
     #calendarId='c_18826hct7bgeqjrmmgrshqk2vbmi2@resource.calendar.google.com'
-                        
     thread = Thread(target=poller_task, args=(app,calendarId))
     thread.start()
     #thread2 = Thread(target=poller_task, args=(app,))

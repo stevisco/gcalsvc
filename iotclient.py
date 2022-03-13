@@ -6,10 +6,11 @@ from requests_oauthlib import OAuth2Session
 from arduino_iot_rest.rest import ApiException
 from arduino_iot_rest.configuration import Configuration
 
+from RoomStatus import RoomStatus
 
-def getToken():
-    print("getToken")
+PNAME_CUREVMSG = "curevmsg"
 
+def get_token():
     oauth_client = BackendApplicationClient(client_id="SOeu9scvEKBMrRjG8olnDAwegufvTiCp")
     token_url = "https://api2.arduino.cc/iot/v1/clients/token"
 
@@ -24,9 +25,7 @@ def getToken():
     return token
 
 
-def initClient(token):
-    print("initClient")
-
+def init_client(token):
     # configure and instance the API client
     client_config = Configuration(host="https://api2.arduino.cc/iot")
     client_config.access_token = token.get("access_token")
@@ -35,10 +34,41 @@ def initClient(token):
     return client
 
 
-def setThingProperty(thing_name,property_name,value):
+def get_room_status(thing_name):
+    token = get_token()
+    client = init_client(token)
+    things_api = iot.ThingsV2Api(client)
+    properties_api = iot.PropertiesV2Api(client)
     
-    token = getToken()
-    client = initClient(token)
+    room=RoomStatus()
+
+    properties=[]
+    try:
+        
+        things = things_api.things_v2_list()
+        for thing in things:
+            if thing.name == thing_name:
+                properties=properties_api.properties_v2_list(thing.id)
+
+    except ApiException as e:
+        print("Got an exception: {}".format(e))
+
+    #creates cache of property ids
+    #in addition to copying variables in room object
+    md={}
+    for property in properties:
+        md[property.name]=property.id
+        if property.name==PNAME_CUREVMSG:
+            room.curevmsg=property.value
+    room.metadata=md
+
+    return room
+
+
+def set_property(thing_name,property_name,value):
+    
+    token = get_token()
+    client = init_client(token)
     things_api = iot.ThingsV2Api(client)
     properties_api = iot.PropertiesV2Api(client)
     
@@ -51,7 +81,9 @@ def setThingProperty(thing_name,property_name,value):
 
     try:
         print("setThingProperty")
-
+        things = things_api.things_v2_list()
+        for thing in things:
+            print(thing.name)
         result = properties_api.properties_v2_publish(tid,pid,{"value":value,"device_id":devid})
         print(result)
 
