@@ -5,6 +5,7 @@ class RoomStatus:
 
     
     def __init__(self):
+        self.name="unknown"
         self.busynow=self.FREE 
         self.curevmsg = "unknown" 
         self.curevend ="" 
@@ -24,7 +25,8 @@ class RoomStatus:
 
     def __eq__(self, other):
         if isinstance(other, self.__class__):
-            return self.busynow==other.busynow \
+            return self.name==other.name \
+                and self.busynow==other.busynow \
                 and self.curevmsg==other.curevmsg \
                 and self.curevstart==other.curevstart \
                 and self.curevend==other.curevend \

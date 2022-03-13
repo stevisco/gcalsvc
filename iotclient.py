@@ -43,7 +43,7 @@ def init_client(token):
     return client
 
 
-def get_room_status(thing_name):
+def get_room_status(room_name):
     token = get_token()
     client = init_client(token)
     things_api = iot.ThingsV2Api(client)
@@ -57,7 +57,8 @@ def get_room_status(thing_name):
         
         things = things_api.things_v2_list()
         for thing in things:
-            if thing.name == thing_name:
+            if thing.name == room_name:
+                room.name=room_name
                 md["thingid"]=thing.id
                 properties=properties_api.properties_v2_list(thing.id)
 
@@ -100,17 +101,12 @@ def update_room_status(toupdate,current):
     properties_api = iot.PropertiesV2Api(client)
     
     #TODO: retrieve tid, pid, devid based on input params
-    tid = "aaa"
+    tid = current.metadata["thingid"]
     pid = "aaa"
     devid = "aaa"
 
     result={}
-
     try:
-        print("setThingProperty")
-        things = things_api.things_v2_list()
-        for thing in things:
-            print(thing.name)
         result = properties_api.properties_v2_publish(tid,pid,{"value":value,"device_id":devid})
         print(result)
 

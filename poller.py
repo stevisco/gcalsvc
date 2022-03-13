@@ -23,7 +23,7 @@ def poller_task(app,calendar_id,room_name):
         while True:
             print("TNAME="+threading.currentThread().getName()+";time="+str(datetime.utcnow()))
     
-            roomstatus_gcal = get_calendar_status(calendar_id)
+            roomstatus_gcal = get_calendar_status(calendar_id,room_name)
             print(roomstatus_gcal)
         
             if roomstatus_gcal != roomstatus_iot:
@@ -48,7 +48,7 @@ def set_nextev_dates(startd,endd,tomorrow,result):
     result.nextevtm=result.nextevstart+"-"+result.nextevend
 
 
-def get_calendar_status(calendarId):
+def get_calendar_status(calendarId,room_name):
     result = RoomStatus()
     now = datetime.utcnow().isoformat() + 'Z'  # 'Z' indicates UTC time    
     try:
@@ -71,9 +71,10 @@ def get_calendar_status(calendarId):
 
         if not events:
             print('No upcoming events found.')
-            return
+            return result
 
         # Fetches the firts 2 events
+        result.name=room_name
         evno = 1
         for event in events:
             start = event['start'].get('dateTime', event['start'].get('date'))
