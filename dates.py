@@ -10,13 +10,3 @@ print(dt2-dt1)
 room = RoomStatus()
 room.curevmsg="ciao"
 print(room)
-
-room2 = RoomStatus()
-room2.curevmsg="ciao"
-print(room2)
-
-if room==room2:
-    print("EQUAL!")
-else:
-    print("DIFFERENT!")
-

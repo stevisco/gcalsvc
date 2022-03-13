@@ -69,26 +69,29 @@ def get_room_status(room_name):
     #creates cache of property ids
     #in addition to copying variables in room object
     for property in properties:
-        print(property)
+        #print(property)
         md[property.name]=property.id
+        value = property.last_value
+        if value is None:
+            value = ""
         if property.name==PNAME_CUREVMSG:
-            room.curevmsg=property.last_value
+            room.curevmsg=value
         if property.name==PNAME_BUSYNOW:
-            room.busynow=property.last_value
+            room.busynow=value
         if property.name==PNAME_CUREVSTART:
-            room.curevstart=property.last_value
+            room.curevstart=value
         if property.name==PNAME_CUREVEND:
-            room.curevend=property.last_value
+            room.curevend=value
         if property.name==PNAME_CUREVTM:
-            room.curevtm=property.last_value
+            room.curevtm=value
         if property.name==PNAME_NEXTEVMSG:
-            room.nextevmsg=property.last_value
+            room.nextevmsg=value
         if property.name==PNAME_NEXTEV_START:
-            room.nextevstart=property.last_value
+            room.nextevstart=value
         if property.name==PNAME_NEXTEVTM:
-            room.nextevtm=property.last_value
+            room.nextevtm=value
         if property.name==PNAME_NEXTEV_END:
-            room.nextevend=property.last_value
+            room.nextevend=value
 
     room.metadata=md
 
@@ -101,24 +104,50 @@ def update_room_status(newstatus,current):
     client = init_client(token)
     properties_api = iot.PropertiesV2Api(client)
     
-    result={}
-
     tid = current.metadata.get("thingid","")
     devid = current.metadata.get("deviceid","")
     if tid is None or devid is None or tid =="" or devid =="":
         print("ERROR: Unable to update status in iotcloud, no thingid or deviceid")
-        return result
-
+        return
+    
     try:
-        pid = current.metadata.get(PNAME_CUREVMSG,"")
-        value = newstatus.curevmsg
-        print("UPDATE: "+tid+"/"+pid+"/"+devid+"/"+PNAME_CUREVMSG+"="+value)
-        result = properties_api.properties_v2_publish(tid,pid,{"value":value,"device_id":devid})
-        print(result)
+        update_property(properties_api,current,newstatus,tid,devid,PNAME_CUREVMSG)
+        update_property(properties_api,current,newstatus,tid,devid,PNAME_CUREVSTART)
+        update_property(properties_api,current,newstatus,tid,devid,PNAME_CUREVEND)
+        update_property(properties_api,current,newstatus,tid,devid,PNAME_CUREVTM)
+        update_property(properties_api,current,newstatus,tid,devid,PNAME_NEXTEVMSG)
+        update_property(properties_api,current,newstatus,tid,devid,PNAME_NEXTEV_START)
+        update_property(properties_api,current,newstatus,tid,devid,PNAME_NEXTEV_END)
+        update_property(properties_api,current,newstatus,tid,devid,PNAME_NEXTEVTM) 
+        update_property(properties_api,current,newstatus,tid,devid,PNAME_BUSYNOW)
 
     except ApiException as e:
         print("Got an exception: {}".format(e))
 
-    return jsonify(result)
 
 
+def update_property(properties_api,current,newstatus,tid,devid,pname):
+    pid = current.metadata.get(pname,"")
+    if (pname == PNAME_BUSYNOW):
+        value = newstatus.busynow
+    if (pname == PNAME_CUREVMSG):
+        value = newstatus.curevmsg
+    if (pname == PNAME_CUREVSTART):
+        value = newstatus.curevstart
+    if (pname == PNAME_CUREVEND):
+        value = newstatus.curevend
+    if (pname == PNAME_CUREVTM):
+        value = newstatus.curevtm
+    if (pname == PNAME_NEXTEVMSG):
+        value = newstatus.nextevmsg
+    if (pname == PNAME_NEXTEV_START):
+        value = newstatus.nextevstart
+    if (pname == PNAME_NEXTEV_END):
+        value = newstatus.nextevend
+    if (pname == PNAME_NEXTEVTM):
+        value = newstatus.nextevtm
+    try:
+        print("UPDATE: "+tid+"/"+pid+"/"+devid+"/"+pname+"="+str(value))
+        properties_api.properties_v2_publish(tid,pid,{"value":value,"device_id":devid})
+    except ApiException as e:
+        print("Got an exception: {}".format(e))

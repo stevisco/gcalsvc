@@ -28,8 +28,11 @@ def poller_task(app,calendar_id,room_name):
         
             if roomstatus_gcal != roomstatus_iot:
                 #need to update roomstatus in iot
+                print("Updating Room status in IoTCloud...")
                 iotclient.update_room_status(roomstatus_gcal,roomstatus_iot)
-                #roomstatus_iot=iotclient.get_room_status(room_name)
+                roomstatus_iot=iotclient.get_room_status(room_name)
+                if (roomstatus_gcal!=roomstatus_iot):
+                    print("Update was not successful - unable to publish status")
 
             print("Going to sleep...")
             sleep(500000)
