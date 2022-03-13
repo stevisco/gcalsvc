@@ -18,25 +18,26 @@ PNAME_NEXTEV_START="nextevstart"
 PNAME_NEXTEVTM="nextevtm"
 PNAME_NEXTEV_END="nextevend"
         
+HOST = "https://api2.arduino.cc/iot"
+TOKEN_URL = "https://api2.arduino.cc/iot/v1/clients/token"
 
 def get_token():
     oauth_client = BackendApplicationClient(client_id="SOeu9scvEKBMrRjG8olnDAwegufvTiCp")
-    token_url = "https://api2.arduino.cc/iot/v1/clients/token"
-
+    
     oauth = OAuth2Session(client=oauth_client)
     token = oauth.fetch_token(
-        token_url=token_url,
+        token_url=TOKEN_URL,
         client_id="SOeu9scvEKBMrRjG8olnDAwegufvTiCp",
         client_secret="***REMOVED***",
         include_client_id=True,
-        audience="https://api2.arduino.cc/iot",
+        audience=HOST,
     )
     return token
 
 
 def init_client(token):
     # configure and instance the API client
-    client_config = Configuration(host="https://api2.arduino.cc/iot")
+    client_config = Configuration(host=HOST)
     client_config.access_token = token.get("access_token")
     client = iot.ApiClient(client_config)
 

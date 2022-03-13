@@ -1,4 +1,5 @@
 from datetime import datetime,timezone,timedelta
+from socket import timeout
 import threading
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
@@ -9,6 +10,7 @@ from time import sleep
 from RoomStatus import RoomStatus
 import iotclient
 import os
+import socket    
  
 SCOPES = ['https://www.googleapis.com/auth/calendar.readonly']
 
@@ -17,6 +19,7 @@ SCOPES = ['https://www.googleapis.com/auth/calendar.readonly']
 def poller_task(app,calendar_id,room_name):
     with app.app_context():
         print("TNAME="+threading.currentThread().getName()+";INITIALIZE")
+        socket.setdefaulttimeout(5)
         roomstatus_iot = iotclient.get_room_status(room_name)
         print(roomstatus_iot)
 
@@ -30,12 +33,14 @@ def poller_task(app,calendar_id,room_name):
                 #need to update roomstatus in iot
                 print("Updating Room status in IoTCloud...")
                 iotclient.update_room_status(roomstatus_gcal,roomstatus_iot)
+                #wait for 3 secs to allow for props propagation
+                sleep(3)
                 roomstatus_iot=iotclient.get_room_status(room_name)
                 if (roomstatus_gcal!=roomstatus_iot):
                     print("Update was not successful - unable to publish status")
 
             print("Going to sleep...")
-            sleep(500000)
+            sleep(5)
 
 
 
