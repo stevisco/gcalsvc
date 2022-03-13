@@ -27,6 +27,9 @@ def poller_task(app,calendarId):
             
                 service = build('calendar', 'v3', credentials=creds)
 
+                #calendar = service.calendars().get(calendarId=calendarId).execute()
+                #print(calendar)
+            
                 print('Getting the upcoming events')
                 events_result = service.events().list(
                         calendarId=calendarId,  \
@@ -89,7 +92,8 @@ def poller_task(app,calendarId):
 
                 print(result)
                 
-                #iotclient.setThingProperty("room1","curmtg","no current meeting")
+                rs = iotclient.get_room_status
+                print(rs)
 
             except RuntimeError as error:
                 print('An error occurred: %s' % error)
