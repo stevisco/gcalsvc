@@ -60,6 +60,7 @@ def get_room_status(room_name):
             if thing.name == room_name:
                 room.name=room_name
                 md["thingid"]=thing.id
+                md["deviceid"]=thing.device_id
                 properties=properties_api.properties_v2_list(thing.id)
 
     except ApiException as e:
@@ -68,25 +69,26 @@ def get_room_status(room_name):
     #creates cache of property ids
     #in addition to copying variables in room object
     for property in properties:
+        print(property)
         md[property.name]=property.id
         if property.name==PNAME_CUREVMSG:
-            room.curevmsg=property.value
+            room.curevmsg=property.last_value
         if property.name==PNAME_BUSYNOW:
-            room.busynow=property.value
+            room.busynow=property.last_value
         if property.name==PNAME_CUREVSTART:
-            room.curevstart=property.value
+            room.curevstart=property.last_value
         if property.name==PNAME_CUREVEND:
-            room.curevend=property.value
+            room.curevend=property.last_value
         if property.name==PNAME_CUREVTM:
-            room.curevtm=property.value
+            room.curevtm=property.last_value
         if property.name==PNAME_NEXTEVMSG:
-            room.nextevmsg=property.value
+            room.nextevmsg=property.last_value
         if property.name==PNAME_NEXTEV_START:
-            room.nextevstart=property.value
+            room.nextevstart=property.last_value
         if property.name==PNAME_NEXTEVTM:
-            room.nextevtm=property.value
+            room.nextevtm=property.last_value
         if property.name==PNAME_NEXTEV_END:
-            room.nextevend=property.value
+            room.nextevend=property.last_value
 
     room.metadata=md
 
@@ -99,15 +101,19 @@ def update_room_status(newstatus,current):
     client = init_client(token)
     properties_api = iot.PropertiesV2Api(client)
     
-    #TODO: retrieve tid, pid, devid based on input params
-    tid = current.metadata.get("thingid","")
-
     result={}
+
+    tid = current.metadata.get("thingid","")
+    devid = current.metadata.get("deviceid","")
+    if tid is None or devid is None or tid =="" or devid =="":
+        print("ERROR: Unable to update status in iotcloud, no thingid or deviceid")
+        return result
+
     try:
         pid = current.metadata.get(PNAME_CUREVMSG,"")
         value = newstatus.curevmsg
-        print("UPDATE: "+tid+"/"+pid+"/"+PNAME_CUREVMSG+"="+value)
-        #result = properties_api.properties_v2_publish(tid,pid,{"value":value,"device_id":devid})
+        print("UPDATE: "+tid+"/"+pid+"/"+devid+"/"+PNAME_CUREVMSG+"="+value)
+        result = properties_api.properties_v2_publish(tid,pid,{"value":value,"device_id":devid})
         print(result)
 
     except ApiException as e:
