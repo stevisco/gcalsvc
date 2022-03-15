@@ -64,7 +64,9 @@ def get_room_status(room_name):
                 md["deviceid"]=thing.device_id
                 properties=properties_api.properties_v2_list(thing.id)
 
+        room.valid=True
     except ApiException as e:
+        room.valid=False 
         print("Got an exception: {}".format(e))
 
     #creates cache of property ids
@@ -149,6 +151,6 @@ def update_property(properties_api,current,newstatus,tid,devid,pname):
         value = newstatus.nextevtm
     try:
         print("UPDATE: "+tid+"/"+pid+"/"+devid+"/"+pname+"="+str(value))
-        properties_api.properties_v2_publish(tid,pid,{"value":value,"device_id":devid})
+        properties_api.properties_v2_publish(tid,pid,{"value":value})
     except ApiException as e:
         print("Got an exception: {}".format(e))

@@ -20,25 +20,40 @@ def poller_task(app,calendar_id,room_name):
     with app.app_context():
         print("TNAME="+threading.currentThread().getName()+";INITIALIZE")
         socket.setdefaulttimeout(5)
-        roomstatus_iot = iotclient.get_room_status(room_name)
-        print(roomstatus_iot)
+        
+        #at start, get current status from iotcloud
+        updatestatusfromiot=True
 
         while True:
             print("TNAME="+threading.currentThread().getName()+";time="+str(datetime.utcnow()))
     
-            roomstatus_gcal = get_calendar_status(calendar_id,room_name)
-            print(roomstatus_gcal)
+            if (updatestatusfromiot):
+                roomstatus_iot = RoomStatus()
+                attempts = 1
+                while(roomstatus_iot.is_valid()==False and attempts<3):
+                    roomstatus_iot = iotclient.get_room_status(room_name)
+                    print(roomstatus_iot)
+                    sleep(2)
+                    attempts=attempts+1
+                #cache status until next update is needed
+                updatestatusfromiot=False  
+
+            #now get status from google calendar 
+            attempts = 1
+            roomstatus_gcal = RoomStatus()
+            while(roomstatus_gcal.is_valid()==False and attempts<3):
+                roomstatus_gcal = get_calendar_status(calendar_id,room_name)
+                print(roomstatus_gcal)
+                sleep(2)
+                attempts=attempts+1
         
-            if roomstatus_gcal != roomstatus_iot:
+            if roomstatus_gcal.is_valid() and roomstatus_iot.is_valid() and roomstatus_gcal != roomstatus_iot:
                 #need to update roomstatus in iot
                 print("Updating Room status in IoTCloud...")
                 iotclient.update_room_status(roomstatus_gcal,roomstatus_iot)
-                #wait for 3 secs to allow for props propagation
-                sleep(3)
-                roomstatus_iot=iotclient.get_room_status(room_name)
-                if (roomstatus_gcal!=roomstatus_iot):
-                    print("Update was not successful - unable to publish status")
-
+                #next time, force update from iotcloud to check that update was performed
+                updatestatusfromiot=True 
+                
             print("Going to sleep...")
             sleep(5)
 
@@ -66,9 +81,6 @@ def get_calendar_status(calendarId,room_name):
             "credentials.json", scopes=SCOPES)
     
         service = build('calendar', 'v3', credentials=creds)
-
-        #calendar = service.calendars().get(calendarId=calendarId).execute()
-        #print(calendar)
     
         print('Getting the upcoming events')
         events_result = service.events().list(
@@ -81,6 +93,7 @@ def get_calendar_status(calendarId,room_name):
 
         if not events:
             print('No upcoming events found.')
+            result.valid = False 
             return result
 
         # Fetches the firts 2 events
@@ -131,7 +144,9 @@ def get_calendar_status(calendarId,room_name):
                     
             evno = evno+1
 
-    except RuntimeError as error:
+        result.valid = True 
+    except (RuntimeError,TimeoutError,socket.timeout) as error:
+        result.valid = False 
         print('An error occurred: %s' % error)
     
     return result

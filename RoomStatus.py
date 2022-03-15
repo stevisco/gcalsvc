@@ -1,3 +1,6 @@
+from this import d
+
+
 class RoomStatus:
     
     BUSY=1
@@ -16,7 +19,11 @@ class RoomStatus:
         self.nextevtm = ""
         self.nextevend=""
         self.metadata={}
+        self.valid=False
     
+    
+    def is_valid(self):
+        return self.valid
  
 
     def __str__(self): 
