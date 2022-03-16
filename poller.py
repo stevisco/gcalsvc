@@ -12,8 +12,10 @@ from RoomStatus import RoomStatus
 from iotclient import IotClient
 import os
 import socket    
+import time
  
-SCOPES = ['https://www.googleapis.com/auth/calendar.readonly']
+SCOPES = ['https://www.googleapis.com/auth/calendar',
+        'https://www.googleapis.com/auth/calendar.events']
 
 
 
@@ -152,3 +154,47 @@ def get_calendar_status(calendarId,room_name):
         print('An error occurred: %s' % error)
     
     return result
+
+
+
+def insert_instantmeeting(calendarId,room_name,duration_mins):
+    #https://developers.google.com/calendar/api/v3/reference/events/insert#examples
+    startdt = datetime.utcnow()
+    mins = startdt.minute
+    #round minutes to 00,15,30,45
+    mins = mins - (mins % 15)
+    startdt = startdt.replace(minute=mins, second=0, microsecond=0)
+    #round duration to multiples of 15mins
+    duration_mins = int(duration_mins / 15)*15
+    enddt = startdt+timedelta(minutes=duration_mins)
+    startstr = datetime.strftime(startdt,"%Y-%m-%dT%H:%M:%S+0000")   
+    endstr = datetime.strftime(enddt,"%Y-%m-%dT%H:%M:%S+0000")   
+
+    try:
+        creds = service_account.Credentials.from_service_account_file(
+            "credentials.json", scopes=SCOPES)
+        creds = creds.with_subject("tablettini@arduino.cc")
+    
+        service = build('calendar', 'v3', credentials=creds)
+    
+        print('Inserting instant meeting')
+        meetid = "im_"+startstr
+        event = {
+            'summary': 'Meeting',
+            'description': meetid,
+            'start': {
+                'dateTime': startstr,
+                'timeZone': "UTC"
+            },
+            'end': {
+                'dateTime': endstr,
+                'timeZone': "UTC"
+            }
+            }
+        print(event)
+        event = service.events().insert(calendarId=calendarId, body=event).execute() 
+        return True
+
+    except (RuntimeError,TimeoutError,socket.timeout,HttpError) as error:
+        print('An error occurred: %s' % error)
+        return False
