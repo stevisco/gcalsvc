@@ -1,3 +1,4 @@
+
 from datetime import datetime,timezone,timedelta
 from socket import timeout
 import threading
@@ -8,7 +9,7 @@ from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from time import sleep
 from RoomStatus import RoomStatus
-import iotclient
+from iotclient import IotClient
 import os
 import socket    
  
@@ -16,13 +17,14 @@ SCOPES = ['https://www.googleapis.com/auth/calendar.readonly']
 
 
 
-def poller_task(app,calendar_id,room_name):
+def poller_task(app,calendar_id,room_name,client_id,client_secret):
     with app.app_context():
         print("TNAME="+threading.currentThread().getName()+";INITIALIZE")
         socket.setdefaulttimeout(5)
         
         #at start, get current status from iotcloud
         updatestatusfromiot=True
+        iotc=IotClient(client_id,client_secret)
 
         while True:
             print("TNAME="+threading.currentThread().getName()+";time="+str(datetime.utcnow()))
@@ -31,7 +33,7 @@ def poller_task(app,calendar_id,room_name):
                 roomstatus_iot = RoomStatus()
                 attempts = 1
                 while(roomstatus_iot.is_valid()==False and attempts<3):
-                    roomstatus_iot = iotclient.get_room_status(room_name)
+                    roomstatus_iot = iotc.get_room_status(room_name)
                     print(roomstatus_iot)
                     sleep(2)
                     attempts=attempts+1
@@ -50,7 +52,7 @@ def poller_task(app,calendar_id,room_name):
             if roomstatus_gcal.is_valid() and roomstatus_iot.is_valid() and roomstatus_gcal != roomstatus_iot:
                 #need to update roomstatus in iot
                 print("Updating Room status in IoTCloud...")
-                iotclient.update_room_status(roomstatus_gcal,roomstatus_iot)
+                iotc.update_room_status(roomstatus_gcal,roomstatus_iot)
                 #next time, force update from iotcloud to check that update was performed
                 updatestatusfromiot=True 
                 
