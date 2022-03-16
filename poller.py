@@ -57,6 +57,9 @@ def poller_task(app,calendar_id,room_name,client_id,client_secret):
                 iotc.update_room_status(roomstatus_gcal,roomstatus_iot)
                 #next time, force update from iotcloud to check that update was performed
                 updatestatusfromiot=True 
+            elif roomstatus_iot.is_valid()==False:
+                #if retrieval of status didn't go well, try again next time
+                updatestatusfromiot=False
                 
             print("Going to sleep...")
             sleep(5)
