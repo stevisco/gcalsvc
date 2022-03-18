@@ -18,7 +18,7 @@ if __name__ == '__main__':
 
     rooms = config.get("rooms",[])
     for room in rooms:
-        calendar_id = room.get("gcal_calendarid","")
+        calendar_id = room.get("gcal_calendar_id","")
         room_name = room.get("room_name","")
         print("Starting thread for room = "+room_name)    
         thread = Thread(target=poller_task, args=(calendar_id,room_name,client_id,client_secret))
