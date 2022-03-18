@@ -2,13 +2,12 @@ import os
 import socket
 from threading import Thread
 from urllib.error import HTTPError
-from flask import Flask, abort, jsonify, request
-from RoomStatus import RoomStatus
+from flask import Flask, abort, request
+from roomstatus import RoomStatus 
 from iotclient import IotClient
-from poller import get_calendar_status, poller_task,insert_instantmeeting
-from datetime import datetime,timezone,timedelta 
-import time 
+from poller import poller_task
 from oauthlib.oauth2 import MissingTokenError
+from gcalclient import GCalClient
 
 app = Flask(__name__)
 
@@ -29,8 +28,11 @@ def newmeeting():
     if room_name=="" or client_secret=="" or client_id=="":
         abort(400,"Required parameters in request body are missing")
     
+    #TODO: retrieve this from config
     calendar_id='arduino.cc_3931313135363730363336@resource.calendar.google.com'
-        
+    
+    gcalc = GCalClient(calendar_id,room_name)
+
     try:
         #use iotcloudclient only to execute oauth
         iotc = IotClient(client_id,client_secret)
@@ -40,11 +42,11 @@ def newmeeting():
             abort(401,"ERROR - invalid authentication")
 
     duration_mins = int(duration_str)
-    roomstatus = get_calendar_status(calendar_id,room_name)
+    roomstatus = gcalc.get_calendar_status()
     if (roomstatus.busynow==RoomStatus.BUSY):
         abort(400,"Could not insert new meeting, room already busy")
 
-    insertedok = insert_instantmeeting(calendar_id,room_name,duration_mins)
+    insertedok = gcalc.insert_instantmeeting(duration_mins)
     if insertedok: 
         return "Meeting inserted"
     else: 

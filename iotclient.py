@@ -5,8 +5,8 @@ from oauthlib.oauth2 import BackendApplicationClient
 from requests_oauthlib import OAuth2Session
 from arduino_iot_rest.rest import ApiException
 from arduino_iot_rest.configuration import Configuration
-
-from RoomStatus import RoomStatus
+import time 
+from roomstatus import RoomStatus 
 
 class IotClient:
     
@@ -32,6 +32,7 @@ class IotClient:
 
 
     def get_token(self):
+        start = time.time()
         oauth_client = BackendApplicationClient(client_id=self.client_id)
         oauth = OAuth2Session(client=oauth_client)
         token = oauth.fetch_token(
@@ -41,6 +42,7 @@ class IotClient:
             include_client_id=True,
             audience=self.HOST,
         )
+        print("Token retrieval took secs=" +str(time.time()-start))
         return token
 
 
@@ -132,7 +134,7 @@ class IotClient:
             self.update_property(properties_api,current,newstatus,tid,devid,self.PNAME_BUSYNOW)
 
         except ApiException as e:
-            print("Got an exception: {}".format(e))
+            print("IOTCLIENT: Got an exception: {}".format(e))
 
 
 
@@ -160,4 +162,4 @@ class IotClient:
             print("UPDATE: "+tid+"/"+pid+"/"+devid+"/"+pname+"="+str(value))
             properties_api.properties_v2_publish(tid,pid,{"value":value})
         except ApiException as e:
-            print("Got an exception: {}".format(e))
+            print("IOTCLIENT: Got an exception: {}".format(e))
