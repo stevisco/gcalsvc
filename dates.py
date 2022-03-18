@@ -13,6 +13,8 @@ room.curevmsg="ciao"
 print(room)
 
 dt3 = datetime.strftime(datetime.utcnow(),"%Y-%m-%dT%H:%M:%S%z")
+dt3 = datetime.strftime(datetime.utcnow(),"%a %d %b %H:%M")
+print(dt3)
 
 dt3 = datetime.now()
 print(dt3.minute)
@@ -30,4 +32,4 @@ print(dt3)
 duration_mins=36
 duration_mins = int(duration_mins / 15)*15
 print(duration_mins)
-
+ 

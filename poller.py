@@ -3,7 +3,7 @@ from datetime import datetime
 from gcalclient import GCalClient
 from socket import timeout
 import threading
-from time import sleep
+from time import time,sleep
 from roomstatus import RoomStatus
 from iotclient import IotClient
 import socket    
@@ -18,12 +18,20 @@ def poller_task(calendar_id,room_name,client_id,client_secret):
     gcalc=GCalClient(calendar_id,room_name)
 
     #at start, get current status from iotcloud
+    #then update it only after there was a change
+    #and update it every 60 secs just to be sure...
     updatestatusfromiot=True
+    lastupdateiot = 0
 
     while True:
         print("POLL;"+threading.currentThread().getName()+";time="+str(datetime.utcnow()))
 
+        delay = int(time())-lastupdateiot
+        if (delay>60):
+            updatestatusfromiot=True
+
         if (updatestatusfromiot):
+            lastupdateiot = int(time())
             roomstatus_iot = RoomStatus()
             attempts = 1
             while(roomstatus_iot.is_valid()==False and attempts<3):
@@ -47,6 +55,8 @@ def poller_task(calendar_id,room_name,client_id,client_secret):
             #need to update roomstatus in iot
             print("Updating Room status in IoTCloud...")
             iotc.update_room_status(roomstatus_gcal,roomstatus_iot)
+            #leave some time for property propagation
+            sleep(5) 
             #next time, force update from iotcloud to check that update was performed
             updatestatusfromiot=True 
         elif roomstatus_iot.is_valid()==False:

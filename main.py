@@ -3,14 +3,16 @@ import socket
 from threading import Thread
 from urllib.error import HTTPError
 from flask import Flask, abort, request
+from numpy import insert
 from roomstatus import RoomStatus 
 from iotclient import IotClient
 from poller import poller_task
 from oauthlib.oauth2 import MissingTokenError
 from gcalclient import GCalClient
+import json
+
 
 app = Flask(__name__)
-
 
 @app.route("/")
 def index():
@@ -19,18 +21,31 @@ def index():
 
 @app.route("/newmeeting",methods=['POST'])
 def newmeeting():
-    
     content = request.get_json(True)
-    room_name = content.get("room_name","")
+    
+    #read auth data from request
     client_secret = content.get("client_secret","")
     client_id = content.get("client_id","")
     duration_str = content.get("duration_mins","60")
+    room_name = content.get("room_name","")
     if room_name=="" or client_secret=="" or client_id=="":
         abort(400,"Required parameters in request body are missing")
     
-    #TODO: retrieve this from config
-    calendar_id='arduino.cc_3931313135363730363336@resource.calendar.google.com'
-    insert_asuser="tablettini@arduino.cc"
+    #retrieve config
+    with open('config.json', 'r') as f:
+        config = json.load(f)
+    rooms=config.get("rooms",[])
+    insert_asuser=config.get("gcal_insert_asuser","")
+    calendar_id = ""
+    for room in rooms:
+        if room.get("room_name","")==room_name:
+            calendar_id=room.get("gcal_calendar_id","")
+
+    if calendar_id=="":
+        abort(400,"Required parameter not matching configuration for room_name="+room_name)
+
+    #calendar_id='arduino.cc_3931313135363730363336@resource.calendar.google.com'
+    #insert_asuser="tablettini@arduino.cc"
     
     gcalc = GCalClient(calendar_id,room_name)
 
@@ -60,8 +75,11 @@ def newmeeting():
 
     
 
+    
+
 
 
 if __name__ == '__main__':
+    
     
     app.run(debug=True, use_reloader=False, host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))

@@ -28,11 +28,13 @@ class GCalClient:
         if (startd<tomorrow):
             result.nextevstart = datetime.strftime(startd,"%H:%M")
             result.nextevend = datetime.strftime(endd,"%H:%M")
+            result.nextevtm=result.nextevstart+"-"+result.nextevend
         else: 
             result.nextevstart = datetime.strftime(startd,"%Y-%m-%d %H:%M")
             result.nextevend = datetime.strftime(endd,"%H:%M")
-        result.nextevtm=result.nextevstart+"-"+result.nextevend
-
+            result.nextevtm = datetime.strftime(startd,"%a %d %b %H:%M") \
+                            +"-"+result.nextevend
+ 
 
     def get_calendar_status(self):
         result = RoomStatus()
