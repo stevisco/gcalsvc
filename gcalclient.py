@@ -14,7 +14,7 @@ SCOPES = ['https://www.googleapis.com/auth/calendar',
 class GCalClient:
 
     calendarId =""
-    room_name=""
+    room_name="" 
 
     def __init__(self,calendarId,room_name):
         self.calendarId=calendarId
@@ -114,7 +114,7 @@ class GCalClient:
 
 
 
-    def insert_instantmeeting(self,duration_mins):
+    def insert_instantmeeting(self,duration_mins,insert_asuser):
         #https://developers.google.com/calendar/api/v3/reference/events/insert#examples
         startdt = datetime.utcnow()
         mins = startdt.minute
@@ -130,7 +130,7 @@ class GCalClient:
         try:
             creds = service_account.Credentials.from_service_account_file(
                 "credentials.json", scopes=SCOPES)
-            creds = creds.with_subject("tablettini@arduino.cc")
+            creds = creds.with_subject(insert_asuser)
         
             service = build('calendar', 'v3', credentials=creds)
         

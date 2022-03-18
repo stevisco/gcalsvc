@@ -42,7 +42,7 @@ class IotClient:
             include_client_id=True,
             audience=self.HOST,
         )
-        print("Token retrieval took secs=" +str(time.time()-start))
+        #print("Token retrieval took secs=" +str(time.time()-start))
         return token
 
 

@@ -1,6 +1,3 @@
-from this import d
-
-
 class RoomStatus:
     
     BUSY=1
