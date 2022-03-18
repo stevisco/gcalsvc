@@ -3,6 +3,5 @@
 
 
 
-
-gcloud run deploy --no-cpu-throttling
+gcloud run deploy --no-cpu-throttling --source .
 
