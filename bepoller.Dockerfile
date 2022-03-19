@@ -13,8 +13,5 @@ COPY . ./
 # Install production dependencies.
 RUN pip install --no-cache-dir -r requirements.txt
 
-
-ENTRYPOINT ["/tini", "--", "./start.sh"]
-
 CMD [ "python", "./backend.py" ]
 
