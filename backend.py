@@ -1,6 +1,9 @@
 from threading import Thread
 from poller import poller_task
 import json
+import logging
+import sys
+
 
 if __name__ == '__main__':
 
@@ -9,9 +12,11 @@ if __name__ == '__main__':
     #client_secret="***REMOVED***"
     #client_id="SOeu9scvEKBMrRjG8olnDAwegufvTiCp"
 
+    #logging.debug("Opening configuration on config.json")
     with open('config.json', 'r') as f:
         config = json.load(f)
-    
+    #logging.debug(config)
+
     client_secret=config.get("iot_client_secret","")
     client_id=config.get("iot_client_id","")
     insert_asuser=config.get("gcal_insert_asuser","")

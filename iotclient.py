@@ -25,6 +25,7 @@ class IotClient:
 
     client_id=""
     client_secret=""
+    
 
     def __init__(self,client_id,client_secret):
         self.client_id=client_id
@@ -32,7 +33,7 @@ class IotClient:
 
 
     def get_token(self):
-        start = time.time()
+        #start = time.time()
         oauth_client = BackendApplicationClient(client_id=self.client_id)
         oauth = OAuth2Session(client=oauth_client)
         token = oauth.fetch_token(
@@ -123,15 +124,24 @@ class IotClient:
             return
         
         try:
-            self.update_property(properties_api,current,newstatus,tid,devid,self.PNAME_CUREVMSG)
-            self.update_property(properties_api,current,newstatus,tid,devid,self.PNAME_CUREVSTART)
-            self.update_property(properties_api,current,newstatus,tid,devid,self.PNAME_CUREVEND)
-            self.update_property(properties_api,current,newstatus,tid,devid,self.PNAME_CUREVTM)
-            self.update_property(properties_api,current,newstatus,tid,devid,self.PNAME_NEXTEVMSG)
-            self.update_property(properties_api,current,newstatus,tid,devid,self.PNAME_NEXTEV_START)
-            self.update_property(properties_api,current,newstatus,tid,devid,self.PNAME_NEXTEV_END)
-            self.update_property(properties_api,current,newstatus,tid,devid,self.PNAME_NEXTEVTM) 
-            self.update_property(properties_api,current,newstatus,tid,devid,self.PNAME_BUSYNOW)
+            if current.curevmsg!=newstatus.curevmsg:
+                self.update_property(properties_api,current,newstatus,tid,devid,self.PNAME_CUREVMSG)
+            if current.curevstart!=newstatus.curevstart:
+                self.update_property(properties_api,current,newstatus,tid,devid,self.PNAME_CUREVSTART)
+            if current.curevend!=newstatus.curevend:
+                self.update_property(properties_api,current,newstatus,tid,devid,self.PNAME_CUREVEND)
+            if current.curevtm!=newstatus.curevtm:
+                self.update_property(properties_api,current,newstatus,tid,devid,self.PNAME_CUREVTM)
+            if current.nextevmsg!=newstatus.nextevmsg:
+                self.update_property(properties_api,current,newstatus,tid,devid,self.PNAME_NEXTEVMSG)
+            if current.nextevstart!=newstatus.nextevstart:
+                self.update_property(properties_api,current,newstatus,tid,devid,self.PNAME_NEXTEV_START)
+            if current.nextevend!=newstatus.nextevend:
+                self.update_property(properties_api,current,newstatus,tid,devid,self.PNAME_NEXTEV_END)
+            if current.nextevtm!=newstatus.nextevtm:
+                self.update_property(properties_api,current,newstatus,tid,devid,self.PNAME_NEXTEVTM) 
+            if current.busynow!=newstatus.busynow:
+                self.update_property(properties_api,current,newstatus,tid,devid,self.PNAME_BUSYNOW)
 
         except ApiException as e:
             print("IOTCLIENT: Got an exception: {}".format(e))

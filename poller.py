@@ -63,7 +63,7 @@ def poller_task(calendar_id,room_name,client_id,client_secret):
             #if retrieval of status didn't go well, try again next time
             updatestatusfromiot=True
             
-        sleep(3)
+        sleep(5)
 
 
 
