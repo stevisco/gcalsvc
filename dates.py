@@ -10,7 +10,7 @@ print(dt2-dt1)
 
 room = RoomStatus()
 room.curevmsg="ciao"
-print(room)
+print(room.toJSON())
 
 dt3 = datetime.strftime(datetime.utcnow(),"%Y-%m-%dT%H:%M:%S%z")
 dt3 = datetime.strftime(datetime.utcnow(),"%a %d %b %H:%M")

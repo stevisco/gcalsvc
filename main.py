@@ -2,7 +2,7 @@ import os
 import socket
 from threading import Thread
 from urllib.error import HTTPError
-from flask import Flask, abort, request
+from flask import Flask, abort, jsonify, request
 from numpy import insert
 from roomstatus import RoomStatus 
 from iotclient import IotClient
@@ -18,16 +18,54 @@ app = Flask(__name__)
 def index():
     return "OK"
 
+@app.route("/meetings",methods=['GET'])
+def list_meetings():
+    content = request.get_json(True)
+    #read auth data from request
+    client_secret = content.get("client_secret","")
+    client_id = content.get("client_id","")
+    room_name = content.get("room_name","")
+    
+    if room_name=="" or client_secret=="" or client_id=="":
+        abort(400,"Required parameters in request body are missing")
+    
+    #retrieve config
+    with open('config.json', 'r') as f:
+        config = json.load(f)
+    rooms=config.get("rooms",[])
+    calendar_id = ""
+    for room in rooms:
+        if room.get("room_name","")==room_name:
+            calendar_id=room.get("gcal_calendar_id","")
 
-@app.route("/newmeeting",methods=['POST'])
+    if calendar_id=="":
+        abort(400,"Required parameter not matching configuration for room_name="+room_name)
+
+    gcalc = GCalClient(calendar_id,room_name)
+
+    try:
+        #use iotcloudclient only to execute oauth
+        iotc = IotClient(client_id,client_secret)
+        iotc.get_token()
+    except (RuntimeError,TimeoutError,socket.timeout,HTTPError,MissingTokenError) as error:
+            print('An error occurred: %s' % error)
+            abort(401,"ERROR - invalid authentication")
+
+    roomstatus = gcalc.get_calendar_status()
+    return roomstatus.toJSON()
+
+
+
+
+@app.route("/meetings",methods=['POST'])
 def newmeeting():
     content = request.get_json(True)
-    
     #read auth data from request
     client_secret = content.get("client_secret","")
     client_id = content.get("client_id","")
     duration_str = content.get("duration_mins","60")
     room_name = content.get("room_name","")
+
     if room_name=="" or client_secret=="" or client_id=="":
         abort(400,"Required parameters in request body are missing")
     
@@ -69,7 +107,7 @@ def newmeeting():
         attempts = attempts+1
 
     if insertedok: 
-        return "Meeting inserted"
+        return "Meeting created",201
     else: 
         abort(500,"ERROR - could not insert meeting")
 

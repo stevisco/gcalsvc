@@ -1,3 +1,5 @@
+import json
+
 class RoomStatus:
     
     BUSY=1
@@ -18,7 +20,11 @@ class RoomStatus:
         self.metadata={}
         self.valid=False
     
-    
+
+    def toJSON(self):
+        return json.dumps(self.__dict__)
+
+
     def is_valid(self):
         return self.valid
  
