@@ -30,12 +30,36 @@ gcloud builds submit --tag us-east1-docker.pkg.dev/roomcalendar-343908/gcalsvc-b
 
 gcloud compute instances create-with-container roomcalsrv --zone us-east1-b --container-image=us-east1-docker.pkg.dev/roomcalendar-343908/gcalsvc-bepoller-repo/gcalsvc-bepoller:latest --machine-type=e2-small
 
+gcloud compute instances update-container roomcalsrv --zone us-east1-b --container-image=us-east1-docker.pkg.dev/roomcalendar-343908/gcalsvc-bepoller-repo/gcalsvc-bepoller:latest
+
+
+#allow serviceaccount to access secrets
+
+gcloud secrets add-iam-policy-binding roomcal-config-json \
+    --member="serviceAccount:roomcal-gcalsvc@roomcalendar-343908.iam.gserviceaccount.com" \
+    --role="roles/secretmanager.secretAccessor"
+
+gcloud secrets add-iam-policy-binding roomcal-gcal-credentials \
+    --member="serviceAccount:roomcal-gcalsvc@roomcalendar-343908.iam.gserviceaccount.com" \
+    --role="roles/secretmanager.secretAccessor"
 
 
 #build and run frontend server
 cp frontend.Dockerfile Dockerfile
 #gcloud builds submit --tag us-east1-docker.pkg.dev/roomcalendar-343908/cloud-run-source-deploy/gcalsvc:latest
-gcloud run deploy --max-instances 1 --source .
+gcloud run deploy --max-instances 1 --allow-unauthenticated \
+--service-account=roomcal-gcalsvc@roomcalendar-343908.iam.gserviceaccount.com \
+--update-secrets=/conf/config.json=roomcal-config-json:latest,/conf/credentials.json=roomcal-gcal-credentials:latest \ --source .
+
+
+gcloud run deploy gcalsvc \
+--image=us-east1-docker.pkg.dev/roomcalendar-343908/cloud-run-source-deploy/gcalsvc \
+--service-account=roomcal-gcalsvc@roomcalendar-343908.iam.gserviceaccount.com \
+--platform=managed \
+--region=us-east1 \
+--project=roomcalendar-343908 \
+ && gcloud run services update-traffic gcalsvc --to-latest
+
 
 
 

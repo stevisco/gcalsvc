@@ -41,7 +41,7 @@ class GCalClient:
         now = datetime.utcnow().isoformat() + 'Z'  # 'Z' indicates UTC time    
         try:
             creds = service_account.Credentials.from_service_account_file(
-                "credentials.json", scopes=SCOPES)
+                "/etc/secrets/credentials.json", scopes=SCOPES)
         
             service = build('calendar', 'v3', credentials=creds)
         
@@ -131,7 +131,7 @@ class GCalClient:
 
         try:
             creds = service_account.Credentials.from_service_account_file(
-                "credentials.json", scopes=SCOPES)
+                "/etc/secrets/credentials.json", scopes=SCOPES)
             creds = creds.with_subject(insert_asuser)
         
             service = build('calendar', 'v3', credentials=creds)

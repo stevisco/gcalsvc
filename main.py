@@ -30,7 +30,7 @@ def list_meetings():
         abort(400,"Required parameters in request body are missing")
     
     #retrieve config
-    with open('config.json', 'r') as f:
+    with open('/etc/secrets/config.json', 'r') as f:
         config = json.load(f)
     rooms=config.get("rooms",[])
     calendar_id = ""
@@ -70,7 +70,7 @@ def newmeeting():
         abort(400,"Required parameters in request body are missing")
     
     #retrieve config
-    with open('config.json', 'r') as f:
+    with open('/etc/secrets/config.json', 'r') as f:
         config = json.load(f)
     rooms=config.get("rooms",[])
     insert_asuser=config.get("gcal_insert_asuser","")
