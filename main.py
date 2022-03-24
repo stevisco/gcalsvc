@@ -18,19 +18,24 @@ app = Flask(__name__)
 def index():
     return "OK"
 
+
 @app.route("/meetings",methods=['GET'])
 def list_meetings():
-    content = request.get_json(True)
+    print("Started executing...")
     #read auth data from request
-    client_secret = content.get("client_secret","")
-    client_id = content.get("client_id","")
-    room_name = content.get("room_name","")
-    
+    #content = request.get_json(True)
+    #client_secret = content.get("client_secret","")
+    #client_id = content.get("client_id","")
+    #room_name = content.get("room_name","")
+    client_id = request.args.get("client_id","")
+    room_name=request.args.get("room_name","")
+    authh = request.headers.get("Authorization","Bearer ")
+    client_secret = authh[7:len(authh)]
     if room_name=="" or client_secret=="" or client_id=="":
         abort(400,"Required parameters in request body are missing")
     
     #retrieve config
-    with open('/etc/secrets/config.json', 'r') as f:
+    with open('config.json', 'r') as f:
         config = json.load(f)
     rooms=config.get("rooms",[])
     calendar_id = ""
@@ -70,7 +75,7 @@ def newmeeting():
         abort(400,"Required parameters in request body are missing")
     
     #retrieve config
-    with open('/etc/secrets/config.json', 'r') as f:
+    with open('config.json', 'r') as f:
         config = json.load(f)
     rooms=config.get("rooms",[])
     insert_asuser=config.get("gcal_insert_asuser","")

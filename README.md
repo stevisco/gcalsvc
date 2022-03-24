@@ -48,6 +48,10 @@ gcloud secrets add-iam-policy-binding roomcal-gcal-credentials \
 cp frontend.Dockerfile Dockerfile
 #gcloud builds submit --tag us-east1-docker.pkg.dev/roomcalendar-343908/cloud-run-source-deploy/gcalsvc:latest
 gcloud run deploy --max-instances 1 --allow-unauthenticated \
+--service-account=roomcal-gcalsvc@roomcalendar-343908.iam.gserviceaccount.com --source .
+
+####
+gcloud run deploy --max-instances 1 --allow-unauthenticated \
 --service-account=roomcal-gcalsvc@roomcalendar-343908.iam.gserviceaccount.com \
 --update-secrets=/conf/config.json=roomcal-config-json:latest,/conf/credentials.json=roomcal-gcal-credentials:latest \ --source .
 
