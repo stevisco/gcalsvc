@@ -22,6 +22,7 @@ gcloud auth configure-docker us-east1-docker.pkg.dev
 #then run backend container in a dedicated machine
 
 cp bepoller.Dockerfile Dockerfile
+
 gcloud builds submit --tag us-east1-docker.pkg.dev/roomcalendar-343908/gcalsvc-bepoller-repo/gcalsvc-bepoller:latest
 
 gcloud compute instances create-with-container roomcalsrv --zone us-east1-b --container-image=us-east1-docker.pkg.dev/roomcalendar-343908/gcalsvc-bepoller-repo/gcalsvc-bepoller:latest --machine-type=e2-small
