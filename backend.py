@@ -13,7 +13,7 @@ if __name__ == '__main__':
     #client_id="SOeu9scvEKBMrRjG8olnDAwegufvTiCp"
 
     #logging.debug("Opening configuration on config.json")
-    with open('/isecrets/config.json', 'r') as f:
+    with open('config.json', 'r') as f:
         config = json.load(f)
     #logging.debug(config)
 

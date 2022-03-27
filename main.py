@@ -11,8 +11,6 @@ from oauthlib.oauth2 import MissingTokenError
 from gcalclient import GCalClient
 import json
 
-from secretread import prepare_config
-
 
 app = Flask(__name__)
 
@@ -125,6 +123,4 @@ def newmeeting():
 
 
 if __name__ == '__main__':
-
-    prepare_config()        
     app.run(debug=True, use_reloader=False, host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))
