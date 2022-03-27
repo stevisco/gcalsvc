@@ -5,8 +5,13 @@ from oauthlib.oauth2 import BackendApplicationClient
 from requests_oauthlib import OAuth2Session
 from arduino_iot_rest.rest import ApiException
 from arduino_iot_rest.configuration import Configuration
-import time 
+import mylogger
+import time
 from roomstatus import RoomStatus 
+
+
+logger = mylogger.getlogger(__name__)
+
 
 class IotClient:
     
@@ -33,7 +38,7 @@ class IotClient:
 
 
     def get_token(self):
-        #start = time.time()
+        start = time.time()
         oauth_client = BackendApplicationClient(client_id=self.client_id)
         oauth = OAuth2Session(client=oauth_client)
         token = oauth.fetch_token(
@@ -43,7 +48,7 @@ class IotClient:
             include_client_id=True,
             audience=self.HOST,
         )
-        #print("Token retrieval took secs=" +str(time.time()-start))
+        logger.debug("Token retrieval took secs=" +str(time.time()-start))
         return token
 
 
@@ -78,7 +83,7 @@ class IotClient:
             room.valid=True
         except ApiException as e:
             room.valid=False 
-            print("Got an exception: {}".format(e))
+            logger.error("Got an exception: {}".format(e))
 
         #creates cache of property ids
         #in addition to copying variables in room object
@@ -120,7 +125,7 @@ class IotClient:
         tid = current.metadata.get("thingid","")
         devid = current.metadata.get("deviceid","")
         if tid is None or devid is None or tid =="" or devid =="":
-            print("ERROR: Unable to update status in iotcloud, no thingid or deviceid")
+            logger.error("ERROR: Unable to update status in iotcloud, no thingid or deviceid")
             return
         
         try:
@@ -144,7 +149,7 @@ class IotClient:
                 self.update_property(properties_api,current,newstatus,tid,devid,self.PNAME_BUSYNOW)
 
         except ApiException as e:
-            print("IOTCLIENT: Got an exception: {}".format(e))
+            logger.error("IOTCLIENT: Got an exception: {}".format(e))
 
 
 
@@ -169,7 +174,7 @@ class IotClient:
         if (pname == self.PNAME_NEXTEVTM):
             value = newstatus.nextevtm
         try:
-            print("UPDATE: "+tid+"/"+pid+"/"+devid+"/"+pname+"="+str(value))
+            logger.info("UPDATE: "+tid+"/"+pid+"/"+devid+"/"+pname+"="+str(value))
             properties_api.properties_v2_publish(tid,pid,{"value":value})
         except ApiException as e:
-            print("IOTCLIENT: Got an exception: {}".format(e))
+            logger.error("IOTCLIENT: Got an exception: {}".format(e))

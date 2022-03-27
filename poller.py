@@ -7,12 +7,13 @@ from time import time,sleep
 from roomstatus import RoomStatus
 from iotclient import IotClient
 import socket    
- 
+import mylogger
 
+logger = mylogger.getlogger(__name__)
 
 def poller_task(calendar_id,room_name,client_id,client_secret):
     
-    print("TNAME="+threading.currentThread().getName()+";INITIALIZE")
+    logger.info("Initializing poller thread")
     socket.setdefaulttimeout(7)
     iotc=IotClient(client_id,client_secret)
     gcalc=GCalClient(calendar_id,room_name)
@@ -24,7 +25,7 @@ def poller_task(calendar_id,room_name,client_id,client_secret):
     lastupdateiot = 0
 
     while True:
-        print("POLL;"+threading.currentThread().getName()+";time="+str(datetime.utcnow()))
+        logger.debug("Polling now")
 
         delay = int(time())-lastupdateiot
         if (delay>60):
@@ -49,8 +50,8 @@ def poller_task(calendar_id,room_name,client_id,client_secret):
             sleep(1)
             attempts=attempts+1
     
-        print(roomstatus_iot)
-        print(roomstatus_gcal)
+        logger.debug(f"iot-roomstatus={roomstatus_iot}")
+        logger.debug(f"gcal-roomstatus={roomstatus_gcal}")
         if roomstatus_gcal.is_valid() and roomstatus_iot.is_valid() and roomstatus_gcal != roomstatus_iot:
             #need to update roomstatus in iot
             print("Updating Room status in IoTCloud...")

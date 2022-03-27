@@ -10,9 +10,12 @@ from poller import poller_task
 from oauthlib.oauth2 import MissingTokenError
 from gcalclient import GCalClient
 import json
-
+import mylogger
 
 app = Flask(__name__)
+
+logger = mylogger.getlogger(__name__)
+
 
 @app.route("/")
 def index():
@@ -21,12 +24,8 @@ def index():
 
 @app.route("/meetings",methods=['GET'])
 def list_meetings():
-    print("Started executing...")
-    #read auth data from request
-    #content = request.get_json(True)
-    #client_secret = content.get("client_secret","")
-    #client_id = content.get("client_id","")
-    #room_name = content.get("room_name","")
+    logger.info("Started executing getmeetings")
+    #read auth data from args
     client_id = request.args.get("client_id","")
     room_name=request.args.get("room_name","")
     authh = request.headers.get("Authorization","Bearer ")
@@ -53,7 +52,7 @@ def list_meetings():
         iotc = IotClient(client_id,client_secret)
         iotc.get_token()
     except (RuntimeError,TimeoutError,socket.timeout,HTTPError,MissingTokenError) as error:
-            print('An error occurred: %s' % error)
+            logger.error('An error occurred: %s' % error)
             abort(401,"ERROR - invalid authentication")
 
     roomstatus = gcalc.get_calendar_status()
@@ -97,7 +96,7 @@ def newmeeting():
         iotc = IotClient(client_id,client_secret)
         iotc.get_token()
     except (RuntimeError,TimeoutError,socket.timeout,HTTPError,MissingTokenError) as error:
-            print('An error occurred: %s' % error)
+            logger.error('An error occurred: %s' % error)
             abort(401,"ERROR - invalid authentication")
 
     duration_mins = int(duration_str)
@@ -112,8 +111,10 @@ def newmeeting():
         attempts = attempts+1
 
     if insertedok: 
+        logger.info("Meeting created")
         return "Meeting created",201
     else: 
+        logger.error("Could not insert meeting")
         abort(500,"ERROR - could not insert meeting")
 
     

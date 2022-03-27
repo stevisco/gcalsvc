@@ -6,9 +6,14 @@ from google.oauth2 import service_account
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 import socket
+import mylogger
  
 SCOPES = ['https://www.googleapis.com/auth/calendar',
         'https://www.googleapis.com/auth/calendar.events']
+
+
+
+logger = mylogger.getlogger(__name__)
 
 
 class GCalClient:
@@ -45,7 +50,7 @@ class GCalClient:
         
             service = build('calendar', 'v3', credentials=creds)
         
-            #print('Getting the upcoming events')
+            logger.debug('Getting the upcoming events')
             events_result = service.events().list(
                     calendarId=self.calendarId,  \
                     timeMin=now,  \
@@ -55,7 +60,7 @@ class GCalClient:
             events = events_result.get('items', [])
 
             if not events:
-                print('No upcoming events found.')
+                logger.debug('No upcoming events found.')
                 result.valid = False 
                 return result
 
@@ -110,7 +115,7 @@ class GCalClient:
             result.valid = True 
         except (RuntimeError,TimeoutError,socket.timeout) as error:
             result.valid = False 
-            print('GCALCLIENT: An error occurred: %s' % error)
+            logger.error('GCALCLIENT: An error occurred: %s' % error)
         
         return result
 
@@ -136,7 +141,7 @@ class GCalClient:
         
             service = build('calendar', 'v3', credentials=creds)
         
-            print('Inserting instant meeting')
+            logger.info('Inserting instant meeting')
             meetid = "im_"+startstr
             event = {
                 'summary': 'Meeting',
@@ -150,10 +155,10 @@ class GCalClient:
                     'timeZone': "UTC"
                 }
                 }
-            print(event)
+            logger.debug(event)
             event = service.events().insert(calendarId=self.calendarId, body=event).execute() 
             return True
 
         except (RuntimeError,TimeoutError,socket.timeout,HttpError) as error:
-            print('GCALCLIENT: An error occurred: %s' % error)
+            logger.error('GCALCLIENT: An error occurred: %s' % error)
             return False
