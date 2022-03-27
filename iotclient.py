@@ -74,11 +74,10 @@ class IotClient:
             
             things = things_api.things_v2_list()
             for thing in things:
-                logger.debug(f"Found thing: {thing}")
                 if thing.name == room_name:
+                    logger.debug(f"Found thing: {thing}")
                     room.name=room_name
                     md["thingid"]=thing.id
-                    md["deviceid"]=thing.device_id
                     properties=properties_api.properties_v2_list(thing.id)
 
             room.valid=True
@@ -129,37 +128,36 @@ class IotClient:
         properties_api = iot.PropertiesV2Api(client)
         
         tid = current.metadata.get("thingid","")
-        devid = current.metadata.get("deviceid","")
-        if tid is None or devid is None or tid =="" or devid =="":
-            logger.error("ERROR: Unable to update status in iotcloud, no thingid or deviceid")
+        if tid is None or tid =="":
+            logger.error("ERROR: Unable to update status in iotcloud, no thingid")
             return
         
         try:
             if current.curevmsg!=newstatus.curevmsg:
-                self.update_property(properties_api,current,newstatus,tid,devid,self.PNAME_CUREVMSG)
+                self.update_property(properties_api,current,newstatus,tid,self.PNAME_CUREVMSG)
             if current.curevstart!=newstatus.curevstart:
-                self.update_property(properties_api,current,newstatus,tid,devid,self.PNAME_CUREVSTART)
+                self.update_property(properties_api,current,newstatus,tid,self.PNAME_CUREVSTART)
             if current.curevend!=newstatus.curevend:
-                self.update_property(properties_api,current,newstatus,tid,devid,self.PNAME_CUREVEND)
+                self.update_property(properties_api,current,newstatus,tid,self.PNAME_CUREVEND)
             if current.curevtm!=newstatus.curevtm:
-                self.update_property(properties_api,current,newstatus,tid,devid,self.PNAME_CUREVTM)
+                self.update_property(properties_api,current,newstatus,tid,self.PNAME_CUREVTM)
             if current.nextevmsg!=newstatus.nextevmsg:
-                self.update_property(properties_api,current,newstatus,tid,devid,self.PNAME_NEXTEVMSG)
+                self.update_property(properties_api,current,newstatus,tid,self.PNAME_NEXTEVMSG)
             if current.nextevstart!=newstatus.nextevstart:
-                self.update_property(properties_api,current,newstatus,tid,devid,self.PNAME_NEXTEV_START)
+                self.update_property(properties_api,current,newstatus,tid,self.PNAME_NEXTEV_START)
             if current.nextevend!=newstatus.nextevend:
-                self.update_property(properties_api,current,newstatus,tid,devid,self.PNAME_NEXTEV_END)
+                self.update_property(properties_api,current,newstatus,tid,self.PNAME_NEXTEV_END)
             if current.nextevtm!=newstatus.nextevtm:
-                self.update_property(properties_api,current,newstatus,tid,devid,self.PNAME_NEXTEVTM) 
+                self.update_property(properties_api,current,newstatus,tid,self.PNAME_NEXTEVTM) 
             if current.busynow!=newstatus.busynow:
-                self.update_property(properties_api,current,newstatus,tid,devid,self.PNAME_BUSYNOW)
+                self.update_property(properties_api,current,newstatus,tid,self.PNAME_BUSYNOW)
 
         except ApiException as e:
             logger.error("IOTCLIENT: Got an exception: {}".format(e))
 
 
 
-    def update_property(self,properties_api,current,newstatus,tid,devid,pname):
+    def update_property(self,properties_api,current,newstatus,tid,pname):
         pid = current.metadata.get(pname,"")
         if (pname == self.PNAME_BUSYNOW):
             value = newstatus.busynow
@@ -180,7 +178,7 @@ class IotClient:
         if (pname == self.PNAME_NEXTEVTM):
             value = newstatus.nextevtm
         try:
-            logger.info("UPDATE: "+tid+"/"+pid+"/"+devid+"/"+pname+"="+str(value))
+            logger.info("UPDATE: "+tid+"/"+pid+"/"+pname+"="+str(value))
             properties_api.properties_v2_publish(tid,pid,{"value":value})
         except ApiException as e:
             logger.error("IOTCLIENT: Got an exception: {}".format(e))

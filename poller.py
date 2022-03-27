@@ -25,7 +25,7 @@ def poller_task(calendar_id,room_name,client_id,client_secret):
     lastupdateiot = 0
 
     while True:
-        logger.debug("Polling now")
+        logger.debug(f"Polling now {room_name}")
 
         delay = int(time())-lastupdateiot
         if (delay>60):
@@ -50,11 +50,11 @@ def poller_task(calendar_id,room_name,client_id,client_secret):
             sleep(1)
             attempts=attempts+1
     
-        logger.debug(f"iot-roomstatus={roomstatus_iot}")
-        logger.debug(f"gcal-roomstatus={roomstatus_gcal}")
+        logger.debug(f"iot-roomstatus ={roomstatus_iot}")
+        logger.debug(f"gcal-roomstatus ={roomstatus_gcal}")
         if roomstatus_gcal.is_valid() and roomstatus_iot.is_valid() and roomstatus_gcal != roomstatus_iot:
             #need to update roomstatus in iot
-            logger.info("Updating Room status in IoTCloud...")
+            logger.info(f"Updating room {room_name} in IoTCloud...")
             iotc.update_room_status(roomstatus_gcal,roomstatus_iot)
             #leave some time for property propagation
             sleep(5) 
