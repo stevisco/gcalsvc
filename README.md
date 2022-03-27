@@ -1,4 +1,22 @@
-# gcalsvc
+# GCalService
+
+This service integrates with Google Calendar and provides two different functions:
+* a convenient REST api to retrieve summary status for a room, and for booking the room for an immediate meeting
+* an automated syncrhonization between room status in Google Calendar and a corresponding Thing status in Arduino IoTCloud
+
+Assumptions:
+* for each room named "room_name" at configuration, there is a corresponding Thing in Arduino IoTCloud with Thing name = room_name
+* the Thing in IoTCloud is prepared upfront with the following variables:
+   * busynow (integer) = 0 if the room is currently free, 1 if the room is currently busy
+   * curevmtg (string) = "current event meeting" = description of the meeting in progress, or a sentence like "free until..." if no meeting in progress
+   * curevstart (string) = start time of current meeting if any
+   * curevend (string) = end time of current meeting if any
+   * curevtm (string) = summary indication of time interval (e.g. 15:00-18:00) of current meeting if any
+   * nextevmtg (string) = "next event meeting" = description of the next upcoming meeting in this room, if any
+   * nextevstart (string) = start time of next meeting if any
+   * nextevend (string) = end time of next meeting if any
+   * nextevtm (string) = summary indication of time interval (e.g. 15:00-18:00) of next meeting if any
+   
 
 
 ## REST service
