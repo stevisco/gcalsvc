@@ -54,7 +54,7 @@ def poller_task(calendar_id,room_name,client_id,client_secret):
         logger.debug(f"gcal-roomstatus={roomstatus_gcal}")
         if roomstatus_gcal.is_valid() and roomstatus_iot.is_valid() and roomstatus_gcal != roomstatus_iot:
             #need to update roomstatus in iot
-            print("Updating Room status in IoTCloud...")
+            logger.info("Updating Room status in IoTCloud...")
             iotc.update_room_status(roomstatus_gcal,roomstatus_iot)
             #leave some time for property propagation
             sleep(5) 

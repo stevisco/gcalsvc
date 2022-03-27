@@ -74,6 +74,7 @@ class IotClient:
             
             things = things_api.things_v2_list()
             for thing in things:
+                logger.debug(f"Found thing: {thing}")
                 if thing.name == room_name:
                     room.name=room_name
                     md["thingid"]=thing.id
@@ -84,6 +85,11 @@ class IotClient:
         except ApiException as e:
             room.valid=False 
             logger.error("Got an exception: {}".format(e))
+
+        if room.name!=room_name:
+                #didn't find any thing with this room name
+                logger.error(f"Did not find thing corresponding to room: {room_name}")
+                room.valid=False
 
         #creates cache of property ids
         #in addition to copying variables in room object
