@@ -51,9 +51,7 @@ gcloud run deploy --max-instances 1 --allow-unauthenticated \
 --service-account=roomcal-gcalsvc@roomcalendar-343908.iam.gserviceaccount.com --source .
 
 ####
-gcloud run deploy --max-instances 1 --allow-unauthenticated \
---service-account=roomcal-gcalsvc@roomcalendar-343908.iam.gserviceaccount.com \
---update-secrets=/conf/config.json=roomcal-config-json:latest,/conf/credentials.json=roomcal-gcal-credentials:latest \ --source .
+gcloud run deploy --max-instances 1 --allow-unauthenticated --service-account=roomcal-gcalsvc@roomcalendar-343908.iam.gserviceaccount.com --update-secrets=/isecrets/config.json=roomcal-config-json:latest,/gsecrets/credentials.json=roomcal-gcal-credentials:latest --source .
 
 
 gcloud run deploy gcalsvc \
