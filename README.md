@@ -47,15 +47,21 @@ For this prupose, create a file "config.json" with the following structure in th
 ## REST service
 
 * GET /meetings  - returns JSON object representing room status with next two meetings
+required parameters:
+* Authorization header "Authorization: Bearer ---YOUR IOTCLOUD CLIENT SECRET HERE---"
+* URL param: client_id   (from IoTCloud)
+* URL param: room_name
+
 * POST /meetings  - creates new meeting starting now 
     ** start time is rounded to 15 mins slots
     ** returns 201 if created successfully, or proper error code otherwise
-
-Required JSON input body (for both methods)
+required parameters:
+* Authorization header "Authorization: Bearer ---YOUR IOTCLOUD CLIENT SECRET HERE---"
+* Required JSON POST body:
 ``
 {
     "room_name":"blue_room",
-    "client_secret":"---YOUR IOTCLOUD CLIENT SECRET HERE---"
     "client_id":"---YOUR IOTCLOUD CLIENT ID HERE---"
 }
 ``
+* optional parameter: duration_mins (in POST json body as well), defaults to 60 mins

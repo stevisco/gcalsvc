@@ -65,11 +65,12 @@ def list_meetings():
 def newmeeting():
     content = request.get_json(True)
     #read auth data from request
-    client_secret = content.get("client_secret","")
     client_id = content.get("client_id","")
     duration_str = content.get("duration_mins","60")
     room_name = content.get("room_name","")
-
+    authh = request.headers.get("Authorization","Bearer ")
+    client_secret = authh[7:len(authh)]
+    
     if room_name=="" or client_secret=="" or client_id=="":
         abort(400,"Required parameters in request body are missing")
     
